@@ -1,6 +1,7 @@
 <?php
 
 use App\Concert;
+use App\Order;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -9,6 +10,22 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class OrderTest extends TestCase {
 
     use DatabaseMigrations;
+
+    /** @test */
+    function creatingAnOrderFromTicketsAndEmailAndAmount() {
+
+        $concert = factory(Concert::class)->create()->addTickets(5);
+        $this->assertEquals(5, $concert->ticketsRemaining());
+
+
+        $order = Order::forTickets($concert->findTickets(3), 'john@example.com', 3600);
+
+        $this->assertEquals('john@example.com', $order->email);
+        $this->assertEquals(3, $order->ticketQuantity());
+        $this->assertEquals(3600, $order->amount);
+        $this->assertEquals(2, $concert->ticketsRemaining());
+
+    }
 
     /** @test */
     function convertingToAnArray() {
@@ -23,6 +40,7 @@ class OrderTest extends TestCase {
             'ticket_quantity' => 5,
             'amount' => 6000,
         ], $result);
+
     }
 
     /** @test */

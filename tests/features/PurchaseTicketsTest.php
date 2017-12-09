@@ -98,6 +98,8 @@ class PurchaseTicketsTest extends TestCase
 
     /** @test */
     function anOrderIsNotCreatedIfPaymentFails() {
+
+        $this->disableExceptionHandling();
         // Arrange
         $concert = factory(Concert::class)->states('published')->create(['ticket_price' => 3250])->addTickets(3);
 
@@ -107,6 +109,7 @@ class PurchaseTicketsTest extends TestCase
             'ticket_quantity' => 3,
             'payment_token' => 'invalid-payment-token',
         ]);
+
         // Assert
         $this->assertResponseStatus(422);
         $this->assertFalse($concert->hasOrderFor('test@example.com'));
